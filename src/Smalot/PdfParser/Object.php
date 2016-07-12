@@ -562,7 +562,7 @@ class Object
         $commands = $matches = array();
         $prevOffset = null;
         while ($offset < strlen($text_part)) {
-            if ($prevOffset > $offset) {
+            if ($prevOffset >= $offset && !is_null($prevOffset)) {
                 return $commands;
             }
             $prevOffset = $offset;
