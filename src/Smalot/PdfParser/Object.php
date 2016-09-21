@@ -313,8 +313,16 @@ class Object
                         if (is_null($current_font)) {
                             // Fallback
                             // TODO : Improve
-                            $text .= $command[self::COMMAND][0][self::COMMAND];
-                            continue;
+                            if ( is_array($command) &&
+                                array_key_exists(self::COMMAND, $command) &&
+                                is_array($command[self::COMMAND]) &&
+                                array_key_exists(0, $command[self::COMMAND]) &&
+                                is_array($command[self::COMMAND][0]) &&
+                                array_key_exists(self::COMMAND, $command[self::COMMAND][0])
+                            ) {
+                                $text .= $command[self::COMMAND][0][self::COMMAND];
+                                continue;
+                            }
                         }
 
                         $sub_text = $current_font->decodeText($command[self::COMMAND]);
