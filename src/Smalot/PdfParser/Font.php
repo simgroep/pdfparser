@@ -258,7 +258,7 @@ class Font extends Object
                     $text .= '(';
                 }
 
-                $part = pack('H*', $part);
+                $part = @pack('H*', $part);
                 $text .= ($add_braces ? preg_replace('/\\\/s', '\\\\\\', $part) : $part);
 
                 if ($add_braces) {
@@ -355,41 +355,43 @@ class Font extends Object
         $unicode       = false;
         $font_space    = $this->getFontSpaceLimit();
 
-        foreach ($commands as $command) {
-            switch ($command[Object::TYPE]) {
-                case 'n':
-                    if (floatval(trim($command[Object::COMMAND])) < $font_space) {
-                        $word_position = count($words);
-                    }
-                    continue(2);
+        if (is_array($commands)) {
+            foreach ($commands as $command) {
+                switch ($command[Object::TYPE]) {
+                    case 'n':
+                        if (floatval(trim($command[Object::COMMAND])) < $font_space) {
+                            $word_position = count($words);
+                        }
+                        continue(2);
 
-                case '<':
-                    // Decode hexadecimal.
-                    $text = self::decodeHexadecimal('<' . $command[Object::COMMAND] . '>');
-                    
-                    if (mb_check_encoding($text, "UTF-8")) {
-                        $unicode = true;
-                    }
-                    
-                    break;
+                    case '<':
+                        // Decode hexadecimal.
+                        $text = self::decodeHexadecimal('<' . $command[Object::COMMAND] . '>');
 
-                default:
-                    // Decode octal (if necessary).
-                    $text = self::decodeOctal($command[Object::COMMAND]);
-            }
+                        if (mb_check_encoding($text, "UTF-8")) {
+                            $unicode = true;
+                        }
 
-            // replace escaped chars
-            $text = str_replace(
-                array('\\\\', '\(', '\)', '\n', '\r', '\t', '\ '),
-                array('\\', '(', ')', "\n", "\r", "\t", ' '),
-                $text
-            );
+                        break;
 
-            // add content to result string
-            if (isset($words[$word_position])) {
-                $words[$word_position] .= $text;
-            } else {
-                $words[$word_position] = $text;
+                    default:
+                        // Decode octal (if necessary).
+                        $text = self::decodeOctal($command[Object::COMMAND]);
+                }
+
+                // replace escaped chars
+                $text = str_replace(
+                    array('\\\\', '\(', '\)', '\n', '\r', '\t', '\ '),
+                    array('\\', '(', ')', "\n", "\r", "\t", ' '),
+                    $text
+                );
+
+                // add content to result string
+                if (isset($words[$word_position])) {
+                    $words[$word_position] .= $text;
+                } else {
+                    $words[$word_position] = $text;
+                }
             }
         }
 
